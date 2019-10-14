@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 
 int main(){
@@ -14,7 +13,6 @@ int main(){
 				idhijo = getpid();
 				printf("[PROCESO]-> PDI %d, PDI padre %d\n",idhijo,getppid());
 				
-				//Abrir el archivo virtual del proceso e imprimir su pila.
 				printf(ruta, "/proc/%d/status", idhijo);
 				
 				fd = fopen(ruta, "r");
@@ -23,8 +21,6 @@ int main(){
 	      			printf("%c", ch);
 
 	      		fclose(fd);
-
-	      		exit(0);
 			}
 		}
 
