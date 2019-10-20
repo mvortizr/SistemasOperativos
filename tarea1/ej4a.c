@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <signal.h> 
 #include <unistd.h>
+#include <assert.h>
 
-int main (){
-	
-	//Defino variables
-	struct sigaction sa;
-	int child_count=0;
+int child_count=0;
+int parent_pid;
 
-	//Defino funciones en este contexto para usar child_count como var global
-	void createChildWithExec(){
+
+//Método que crea un proceso hijo que ejecuta xcalc
+void createChildWithExec(){
 		if(fork()==0) {
 		    printf("[PROCESO HIJO] PID: %d, PID padre: %d, PID grupo:%d\n", getpid(), getppid(), getpgrp());
 		    char *args[] = {"xcalc", NULL};
@@ -18,10 +17,13 @@ int main (){
 		    child_count++;
 		   	printf("[PROCESO PADRE] PID: %d, Hijo(s): %i, PID grupo:%d\n", getpid(), child_count,getpgrp());    	
 		}
+
 	}
 
 
-	void signal_controller(int signal) {
+
+//Controlador de señales propio
+void signal_controller(int signal) {
     
 	    const char *signal_name;
 
@@ -32,7 +34,10 @@ int main (){
 	            break;
 	        case SIGTERM:
 	            signal_name = "SIGTERM";
-	            kill(0,15);
+	            //envia una señal sigterm a todos los hijos
+	            
+	           	kill(parent_pid * -1,15);
+	            if (parent_pid != getpid()) exit(0);
 	            break;
 	        default:
 	            fprintf(stderr, "Error: %d\n", signal);
@@ -44,8 +49,12 @@ int main (){
 
 	}
 
-
-	printf("[PROCESO] PID: %d\n", getpid());
+int main (){
+	
+	//Defino variables
+	struct sigaction sa;
+	parent_pid=getpid();
+	printf("[PROCESO] PID: %d\n", parent_pid);
 
 	//Asigno mi controlador al manejador de signals
 	sa.sa_handler = &signal_controller;
