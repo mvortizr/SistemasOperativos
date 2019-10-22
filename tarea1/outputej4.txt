@@ -1,0 +1,39 @@
+[PROCESO] PID: 15283
+ 
+Cab ->[15287]->NULL
+
+[PROCESO PADRE] PID: 15283, Hijo(s): 1, PID grupo:15283
+Se ha recibido una señal SIGHUP
+
+[PROCESO HIJO] PID: 15287, PID padre: 15283, PID grupo:15283
+Warning: Cannot convert string "-adobe-symbol-*-*-*-*-*-120-*-*-*-*-*-*" to type FontStruct
+ 
+Cab ->[15293]->[15287]->NULL
+
+[PROCESO PADRE] PID: 15283, Hijo(s): 2, PID grupo:15283
+Se ha recibido una señal SIGHUP
+
+[PROCESO HIJO] PID: 15293, PID padre: 15283, PID grupo:15283
+Warning: Cannot convert string "-adobe-symbol-*-*-*-*-*-120-*-*-*-*-*-*" to type FontStruct
+Se ha recibido una señal SIGTERM
+
+Se ha recibido una señal SIGTERM
+
+ 
+Cab ->[15312]->NULL
+
+[PROCESO HIJO] PID: 15312, PID padre: 15283, PID grupo:15283
+[PROCESO PADRE] PID: 15283, Hijo(s): 3, PID grupo:15283
+Se ha recibido una señal SIGHUP
+
+Warning: Cannot convert string "-adobe-symbol-*-*-*-*-*-120-*-*-*-*-*-*" to type FontStruct
+ 
+Cab ->[15315]->[15312]->NULL
+
+[PROCESO PADRE] PID: 15283, Hijo(s): 4, PID grupo:15283
+Se ha recibido una señal SIGHUP
+
+[PROCESO HIJO] PID: 15315, PID padre: 15283, PID grupo:15283
+Warning: Cannot convert string "-adobe-symbol-*-*-*-*-*-120-*-*-*-*-*-*" to type FontStruct
+Se ha recibido una señal SIGTERM
+
