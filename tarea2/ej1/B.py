@@ -1,24 +1,21 @@
- #codificar(mensaje,llave)
+import random 
+from operator import xor
+import string
+
+def main():
+    readSeed()
+    
+#Read the seed (B)
+def readSeed():
+    with open("shared", "r+b") as f:
+        mm = mmap.mmap(f.fileno(), 0)
+        print('\nSeed in B', mm.readline().decode('ascii'),sep=' ', end='\n')
+        mm.close()
 
 
-#def codificar():
 
-
-
-
-#encrypted =
-
-
-#GARBAGE
-#Error handler
-#if len(sys.argv)<= 1:
-#	print('Error: No seed parameter')
-#	exit()
-#elif len(sys.argv)>2:
-#	print('Error: Too many command line parameters')
-#	exit()
- 
-
-#xor(bool(a), bool(b)) 
-#message = message.encode('ascii')
-#para decodificar b'a string'.decode('ascii')
+#Decrypt character by character using XOR
+def decrypt(encrypted,key):
+    decrypted = [ chr(ord(a) ^ ord(b)) for (a,b) in zip(encrypted, key) ]
+    decrypted = "".join(decrypted)
+    print('decrypted in B: ', decrypted, end='\n\n') 
