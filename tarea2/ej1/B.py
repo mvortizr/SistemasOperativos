@@ -1,21 +1,25 @@
-import random 
-from operator import xor
-import string
+import os, sys,random,string,mmap
+
+mm_name = 'buffer.txt'
+seed= sys.argv[1]
+random.seed(seed) 
 
 def main():
-    readSeed()
-    
-#Read the seed (B)
-def readSeed():
-    with open("shared", "r+b") as f:
-        mm = mmap.mmap(f.fileno(), 0)
-        print('\nSeed in B', mm.readline().decode('ascii'),sep=' ', end='\n')
-        mm.close()
+    fd = os.open(mm_name, os.O_RDONLY)
+    mm = mmap.mmap(fd, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ)
+    encrypted = mm.readline().decode('ascii')
+    print('\nEncrypted in B', encrypted, end='\n')
+    message = decrypt(encrypted)
+    print('\nDecrypted in B: ', message, end='\n') 
+    os.close(fd)
+    os.remove(mm_name)
 
-
-
-#Decrypt character by character using XOR
-def decrypt(encrypted,key):
-    decrypted = [ chr(ord(a) ^ ord(b)) for (a,b) in zip(encrypted, key) ]
+def decrypt(encrypted):
+    key = string.ascii_lowercase
+    encrypted = encrypted.split()
+    key = ''.join(random.choice(key) for i in range(len(encrypted)))
+    decrypted = [ chr(int(a, 2) ^ ord(b)) for (a,b) in zip(encrypted, key) ]
     decrypted = "".join(decrypted)
-    print('decrypted in B: ', decrypted, end='\n\n') 
+    return decrypted
+
+main()   
