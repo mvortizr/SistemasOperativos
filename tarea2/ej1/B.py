@@ -1,18 +1,42 @@
-import os, sys,random,string,mmap
-
+import os, sys,random,string,mmap,posix_ipc
 mm_name = 'buffer.txt'
 seed= sys.argv[1]
-random.seed(seed) 
+random.seed(seed)
+iterations=3
+
 
 def main():
-    fd = os.open(mm_name, os.O_RDONLY)
-    mm = mmap.mmap(fd, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ)
-    encrypted = mm.readline().decode('ascii')
-    print('\nEncrypted in B', encrypted, end='\n')
-    message = decrypt(encrypted)
-    print('\nDecrypted in B: ', message, end='\n') 
-    os.close(fd)
-    os.remove(mm_name)
+
+    #Busy waiting until A initializes semaphores and creates shared memory 
+    while True:
+        if os.path.exists(mm_name): 
+
+            empty = posix_ipc.Semaphore('/empty')
+            full = posix_ipc.Semaphore('/full')
+            mutex = posix_ipc.Semaphore('/mutex') 
+
+            fd = os.open(mm_name, os.O_RDONLY)
+            mm = mmap.mmap(fd, mmap.PAGESIZE, mmap.MAP_SHARED, mmap.PROT_READ)
+            
+            #Repeats the reading process infinitely when A gives turn
+            while True:
+                full.acquire()
+                #Critical region
+                mm.seek(0)
+                mutex.acquire()
+                encrypted = mm.readline().decode('ascii')
+                mutex.release()           
+
+                print('\nEncrypted in B', encrypted, end='\n')
+                message = decrypt(encrypted)
+                print('\nDecrypted in B:', message, end='\n')
+
+                empty.release() 
+
+            #mm.close()
+            #os.close(fd)
+            #break()
+            
 
 def decrypt(encrypted):
     key = string.ascii_lowercase
