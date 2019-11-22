@@ -20,11 +20,12 @@ memory.detach()
 while 1:
     pypethon = open(nombre_pipe,'r')
     mensaje = pypethon.read()
+    mensajeReal = decrypt(mensaje)
     pypethon.close()
-    if decrypt(mensaje) == '': 
+    if mensajeReal == '': 
         print("Se ha cerrado A")
         break
     print("Mensaje encriptado: " + mensaje)
-    print("Mensaje original: " + decrypt(mensaje))
+    print("Mensaje original: " + mensajeReal)
     
 
