@@ -1,16 +1,10 @@
-import os,sys,random,string
-pipe_name = 'buffer'
-seed= sys.argv[1] 
+#!/usr/bin/python3
+import os, sys, random, string
+
+seed = sys.argv[1]
+
+nombre_pipe = "pypethon"
 random.seed(seed) 
-
-
-def main():    
-    pipein = open(pipe_name, 'r')
-    encrypted = pipein.readline()
-    print('\nEncrypted in B', encrypted, end='\n')
-    message = decrypt(encrypted)
-    print('\nDecrypted in B: ', message, end='\n') 
-    os.remove(pipe_name)
 
 def decrypt(encrypted):
     key = string.ascii_lowercase
@@ -19,6 +13,19 @@ def decrypt(encrypted):
     decrypted = [ chr(int(a, 2) ^ ord(b)) for (a,b) in zip(encrypted, key) ]
     decrypted = "".join(decrypted)
     return decrypted
-   
 
-main()
+if os.path.exists(nombre_pipe):
+    while 1:
+        pypethon = open(nombre_pipe,'r')
+        mensaje = pypethon.read()
+        mensajeReal = decrypt(mensaje)
+        pypethon.close()
+        if mensajeReal == '': 
+            print("Se ha finalizado A")
+            break
+        print("Mensaje encriptado: " + mensaje)
+        print("Mensaje original: " + mensajeReal)
+else:
+    print("No se ha creado el FIFO")
+    
+
