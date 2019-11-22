@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import os, sys, random, string, sysv_ipc, posix
+import os, sys, random, string, sysv_ipc
 
 seed = sys.argv[1]
 
