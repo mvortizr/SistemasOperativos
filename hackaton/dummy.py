@@ -6,8 +6,12 @@ import socket
 
 start_time = time.time()
 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('127.0.0.1', 9999)) 
+
 A= sys.argv[1]
 B= sys.argv[2]
+
 
 
 dictOfLines = dict()
@@ -23,8 +27,7 @@ with open('numeros.txt') as fd:
        
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 9999))  
+ 
 
 sumAct1 = 0
 sumAct3 = 0
