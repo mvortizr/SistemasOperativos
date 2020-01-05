@@ -25,13 +25,14 @@ def main():
                 mm.seek(0)
                 mutex.acquire()
                 encrypted = mm.readline().decode('ascii')
-                mutex.release()           
+                mutex.release()        
+                empty.release()    
 
                 print('\nEncrypted in B', encrypted, end='\n')
                 message = decrypt(encrypted)
                 print('\nDecrypted in B:', message, end='\n')
 
-                empty.release() 
+                
 
             #mm.close()
             #os.close(fd)
