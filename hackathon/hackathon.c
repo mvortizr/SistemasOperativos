@@ -65,7 +65,7 @@ int main(int argc, char* argv[]){
                 }
             }
     }
-    
+
     return 0;
 }
 
@@ -230,7 +230,7 @@ int actividad3(){
 
     // open the file
     FILE *f = fopen("numeros.txt" , "r"); 
-    #pragma omp parallel num_threads(1) default(none) shared(res,f,r,llamadas)
+    #pragma omp parallel num_threads(1) default(none) shared(res,f,r)
     {
         #pragma omp single
         {
