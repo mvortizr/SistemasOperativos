@@ -132,7 +132,7 @@ int actividad1(char* argv1){
     _init_reloj(&r);
     // open the file
     FILE *f = fopen("numeros.txt" , "r"); 
-    #pragma omp parallel num_threads(8) default(none) shared(argv1,res,f,r)
+    #pragma omp parallel default(none) shared(argv1,res,f,r)
     {
         #pragma omp single
         {

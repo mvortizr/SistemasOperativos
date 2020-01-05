@@ -35,16 +35,16 @@ void _free_reloj(struct reloj** r){
 
 //Regresa la respuesta del numero solicitado o -1 si no existe
 int reloj_verificar(struct reloj *r, int numerotxt){
-    int ret = -1;
-    #pragma omp parallel num_threads(CLOCK_SLOTS)
-    #pragma omp for
+    //int ret = -1;
+    //#pragma omp parallel num_threads(CLOCK_SLOTS)
+    //#pragma omp for
     for(int i = 0; i<CLOCK_SLOTS; ++i){
         if (( (r->cache) + i)->txt == numerotxt) {
             ((r->cache) + i)->flag = 1;
-            ret = ((r->cache) + i)->respuesta;
+            return ((r->cache) + i)->respuesta;
         }
     }
-    return ret;
+    return -1;
 }
 
 //Inserta el numero solicitado y el valor de su respuesta
