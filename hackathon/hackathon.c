@@ -49,10 +49,10 @@ int main(int argc, char* argv[]){
                 {
                     actividad2(atoi(argv[2]));
                     FIN(TIEMPO_2);
-                }
+                /*}
 
                 #pragma omp task
-                {
+                {*/
                     actividad1(argv[1]);
                     FIN(TIEMPO_1);
                 }
