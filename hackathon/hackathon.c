@@ -23,45 +23,43 @@
 int ejecutar(char*,int);
 //int enviarPorSocket(int);
 int enviarPorSocket(char*);
-int actividad1(char *);
-int actividad2(int);
-int actividad3();
+char* actividad1(char *);
+char* actividad2(int);
+char* actividad3();
 
 
 int main(int argc, char* argv[]){
-    //omp_set_num_threads(16);
-    double TIEMPO_1, TIEMPO_2, TIEMPO_3;
+    double TIEMPO,TIEMPO_2,TIEMPO_3;
 
-    TIEMPO_1 = TIEMPO_2 = TIEMPO_3 = omp_get_wtime();
+    char *res1 = NULL,*res2 = NULL, *res3 = NULL;
+
+    TIEMPO = TIEMPO_2 = TIEMPO_3 = omp_get_wtime();
     omp_set_nested(1);
-    omp_set_dynamic(0);
+    //omp_set_dynamic(0);
     #pragma omp parallel num_threads(3)
     {
             #pragma omp single 
             {
                 #pragma omp task
                 {
-                    actividad3();
+                    res3 = actividad3();
                     FIN(TIEMPO_3);
                 }
             
                 #pragma omp task
                 {
-                    actividad2(atoi(argv[2]));
+                    res2 = actividad2(atoi(argv[2]));
                     FIN(TIEMPO_2);
-                /*}
-
-                #pragma omp task
-                {*/
-                    actividad1(argv[1]);
-                    FIN(TIEMPO_1);
+                    res1 = actividad1(argv[1]);
+                    FIN(TIEMPO);
                 }
 
                 #pragma omp taskwait
                 {
-                    MOSTRAR_TIEMPO(TIEMPO_1,1);
-                    MOSTRAR_TIEMPO(TIEMPO_2,2);
-                    MOSTRAR_TIEMPO(TIEMPO_3,3);
+                    printf("%s\nTIEMPO 1: %f sec.\n%s\nTIEMPO 2: %f sec.\n%s\nTIEMPO 3: %f sec.",res1,TIEMPO,res2,TIEMPO_2,res3,TIEMPO_3);
+                    free(res1);
+                    free(res2);
+                    free(res3);
                 }
             }
     }
@@ -70,7 +68,7 @@ int main(int argc, char* argv[]){
 }
 
 int ejecutar(char* argv1, int num){
-    char buffer[32];
+    char buffer[8];
     char cmd[64];
 
     sprintf(cmd,"/usr/bin/python3 fuente1.py %s %i",argv1, num);
@@ -110,84 +108,51 @@ int enviarPorSocket(char* val){
     } 
     //ENDSOCKET
 
-    //char str[10];
-    char buffer[64]; 
+    char buffer[16]; 
 
-    //sprintf(str,"%9i",val);
-    
-    // if there was an error 
-    //sprintf(_str,"%i\n",str);
-    //printf("%s\n",_str);  
     send(sock , val , sizeof(val) , 0 ); 
-    valread = read(sock,buffer,64); 
+    valread = read(sock,buffer,16); 
 
-    //close(sock);
-    //printf("%i",atoi(buffer));
     return atoi(buffer);
 }
 
-int actividad1(char* argv1){
+char* actividad1(char* argv1){
     int res = 0; 
-    struct reloj *r =NULL;
-    _init_reloj(&r);
     // open the file
     FILE *f = fopen("numeros.txt" , "r"); 
-    #pragma omp parallel default(none) shared(argv1,res,f,r)
+    #pragma omp parallel default(none) shared(argv1,res,f)
     {
         #pragma omp single
         {
-            printf("THREADS PARA ACT 1 %i\n",omp_get_num_threads());
-            char str[20];
-            // if there was an error
+            char str[16];
             while (fgets(str, sizeof(str), f) != NULL) { 
-                //puts(str);
+                
                 #pragma omp task firstprivate(str)
                 {
-                    //printf("soy el hilo %i\n",omp_get_thread_num());
                     int num = atoi(str);
                     int aux;
-                    /*
-                    #pragma omp critical (ACTIVIDAD1)
-                    {
-                        aux = reloj_verificar(r,num);
-                        
-                    }
-                    if (aux == -1){
-                        #pragma omp taskyield*/
-                        aux = ejecutar(argv1,num);/*
-                            
-                        #pragma omp critical (ACTIVIDAD1)
-                        {
-                            ++llamadas;
-                            insertar(r,num,aux);
-                        }
-
-                    }*/
-                    //#pragma omp critical (RESULTADO_1)
-                    //{
-                        //printf("RES AUX %i thread %i\n",aux,omp_get_thread_num());
-                    //    res += aux;
-                    //}
+                 
+                    #pragma omp taskyield
+                    aux = ejecutar(argv1,num);
+              
+                    
                     #pragma omp atomic update
                         res += aux;
                     
                 }
             }
-            fclose(f); // close file
+            fclose(f);
             
         }        
 
     }
+    char *aux = malloc(64 * sizeof(char));
     
-    printf("RESULTADO 1: %i\n",res);
-           
-    _free_reloj(&r);
-
-    return 1;
+    sprintf(aux,"Resultado 1: %i",res);
+    return aux;
 }
 
-int actividad2(int arg2){
-
+char* actividad2(int arg2){
     double x,y,r;
     x = 10000000 + arg2*10000;
     y = 10000000 - arg2*10000;
@@ -197,7 +162,7 @@ int actividad2(int arg2){
         {
             #pragma omp single
             {
-                printf("THREADS PARA ACT 2 %i\n",omp_get_num_threads());
+               
                 for (int j = 0; j < 500; ++j)
                 {
                     #pragma omp task
@@ -217,13 +182,12 @@ int actividad2(int arg2){
             }
         }
 
-        printf("RESULTADO 2: %0.5f\n",r);
-
-        return 1;
+    char *aux = malloc(64 * sizeof(char));
+    sprintf(aux,"Resultado 2: %0.5f",r);
+    return aux;
 }
 
-int actividad3(){
-
+char* actividad3(){
     int res = 0; 
     struct reloj *r =NULL;
     _init_reloj(&r);
@@ -234,28 +198,24 @@ int actividad3(){
     {
         #pragma omp single
         {
-            printf("THREADS PARA ACT 3 %i\n",omp_get_num_threads());
-            char str[20];
+        
+            char str[16];
             // if there was an error
             while (fgets(str, sizeof(str), f) != NULL) { 
                 //puts(str);
                 #pragma omp task firstprivate(str)
                 {
-                    //printf("soy el hilo %i\n",omp_get_thread_num());
-                    //int num = atoi(str);
+                   
                     int aux;
                     int aux2 = atoi(str);
-                    //#pragma omp critical (ACTIVIDAD3)
-                    //{
+                    
                         aux = reloj_verificar(r,aux2);
-                    //}
+                   
                     if (aux == -1){
-                    //    #pragma omp taskyield
+                    
                         aux = enviarPorSocket(str);
-                    //    #pragma omp critical (ACTIVIDAD3)
-                    //    {
-                            insertar(r,aux2,aux);
-                    //    }
+        
+                        insertar(r,aux2,aux);
 
                     }
                     #pragma omp atomic update
@@ -269,8 +229,8 @@ int actividad3(){
 
     }
     
-    printf("RESULTADO 3: %i\n",res);
-
     _free_reloj(&r);
-    return 1;
+    char *aux = malloc(64 * sizeof(char));
+    sprintf(aux,"Resultado 3: %i",res);
+    return aux;
 }
