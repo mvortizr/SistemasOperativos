@@ -1,32 +1,22 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-
 //gcc -fopenmp -o go go.c
 #include <omp.h>
-
 //SOCKETS
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#define PORT 9999 
 #include <locale.h>
-
 #include"clock.h"
 
-
+#define PORT 9999 
 #define NOMBRE_ARCHIVO "numeros.txt"
-
 #define INICIO(X) double X = omp_get_wtime()
 #define FIN(X) X = omp_get_wtime() - (X)
-#define MOSTRAR_TIEMPO(X,N) printf("TIEMPO %i: %f sec.\n", (N), (X))
 
-int ejecutar(char*,int);
-//int enviarPorSocket(int);
-int enviarPorSocket(char*);
 char* actividad1(char *);
 char* actividad2(int);
 char* actividad3();
-
 
 int main(int argc, char* argv[]){
     double TIEMPO,TIEMPO_2,TIEMPO_3;
@@ -67,55 +57,6 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-int ejecutar(char* argv1, int num){
-    char buffer[8];
-    char cmd[64];
-
-    sprintf(cmd,"/usr/bin/python3 fuente1.py %s %i",argv1, num);
-    FILE* file = popen(cmd, "r");
-    fscanf(file, "%s", buffer);
-    pclose(file);
-
-    return atoi(buffer);
-}
-
-int enviarPorSocket(char* val){
-    //SOCKET
-
-    int sock = 0, valread; 
-    struct sockaddr_in serv_addr;
-    
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-    { 
-        printf("\n Socket creation error \n"); 
-        return -1; 
-    } 
-   
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(9999); 
-       
-    // Convert IPv4 and IPv6 addresses from text to binary form 
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
-    { 
-        printf("\nInvalid address/ Address not supported \n"); 
-        return -1; 
-    } 
-   
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
-    { 
-        printf("\nConnection Failed \n"); 
-        return -1; 
-    } 
-    //ENDSOCKET
-
-    char buffer[16]; 
-
-    send(sock , val , sizeof(val) , 0 ); 
-    valread = read(sock,buffer,16); 
-
-    return atoi(buffer);
-}
-
 char* actividad1(char* argv1){
     int res = 0; 
     // open the file
@@ -125,15 +66,26 @@ char* actividad1(char* argv1){
         #pragma omp single
         {
             char str[16];
+            int aux;
+            char buffer[8];
+            char cmd[64];
+            FILE *file = NULL;
             while (fgets(str, sizeof(str), f) != NULL) { 
                 
-                #pragma omp task firstprivate(str)
+                #pragma omp task firstprivate(str) private(aux,buffer,cmd)
                 {
                     int num = atoi(str);
-                    int aux;
                  
                     #pragma omp taskyield
-                    aux = ejecutar(argv1,num);
+                    {
+                        //EJECUTA fuente1.py
+                        sprintf(cmd,"/usr/bin/python3 fuente1.py %s %i",argv1, num);
+                        file = popen(cmd, "r");
+                        fscanf(file, "%s", buffer);
+                        pclose(file);
+
+                        aux = atoi(buffer);
+                    }
               
                     
                     #pragma omp atomic update
@@ -200,23 +152,38 @@ char* actividad3(){
         {
         
             char str[16];
-            // if there was an error
+            //CREAR SOCKET
+            int sock = 0, valread; 
+            struct sockaddr_in serv_addr; 
+            
+            if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
+                printf("\n Socket creation error \n");         
+        
+        
+            serv_addr.sin_family = AF_INET; 
+            serv_addr.sin_port = htons(9999); 
+            
+            // Convert IPv4 and IPv6 addresses from text to binary form 
+            if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)      
+                printf("\nInvalid address/ Address not supported \n"); 
+        
+            if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
+                printf("\nConnection Failed \n"); 
+            //FIN CREAR SOCKET
             while (fgets(str, sizeof(str), f) != NULL) { 
-                //puts(str);
-                #pragma omp task firstprivate(str)
+                #pragma omp task firstprivate(str,sock)
                 {
-                   
-                    int aux;
-                    int aux2 = atoi(str);
+                    char buffer[16];
+                    int aux, aux2 = atoi(str);
                     
-                        aux = reloj_verificar(r,aux2);
+                    aux = reloj_verificar(r,aux2);
                    
                     if (aux == -1){
-                    
-                        aux = enviarPorSocket(str);
-        
+                        //ENVIAR A server.py
+                        send(sock , str , sizeof(str) , 0 ); 
+                        read(sock,buffer,16); 
+                        aux = atoi(buffer);
                         insertar(r,aux2,aux);
-
                     }
                     #pragma omp atomic update
                         res +=aux;
