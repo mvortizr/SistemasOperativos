@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
 char* actividad1(char* argv1){
     int res = 0; 
     // open the file
-    FILE *f = fopen("numeros.txt" , "r"); 
+    register FILE *f = fopen("numeros.txt" , "r"); 
     #pragma omp parallel default(none) shared(argv1,res,f)
     {
         #pragma omp single
@@ -141,11 +141,15 @@ char* actividad2(int arg2){
 
 char* actividad3(){
     int res = 0; 
-    struct reloj *r =NULL;
-    _init_reloj(&r);
+    register struct reloj *r = NULL;
+
+    r = (struct reloj*) malloc(sizeof(struct reloj));
+    (r)->aguja = 0;
+    (r)->cache = (struct casilla *) calloc( CLOCK_SLOTS , sizeof(struct casilla));
+    //_init_reloj(&r);
 
     // open the file
-    FILE *f = fopen("numeros.txt" , "r"); 
+    register FILE *f = fopen("numeros.txt" , "r"); 
     #pragma omp parallel num_threads(1) default(none) shared(res,f,r)
     {
         #pragma omp single
@@ -196,7 +200,9 @@ char* actividad3(){
 
     }
     
-    _free_reloj(&r);
+    //_free_reloj(&r);
+    free(r->cache);
+    free(r);
     char *aux = malloc(64 * sizeof(char));
     sprintf(aux,"Resultado 3: %i",res);
     return aux;
