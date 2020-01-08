@@ -19,14 +19,17 @@ char* actividad2(int);
 char* actividad3();
 
 int main(int argc, char* argv[]){
+    if (argc < 3){
+        printf("Debe ingresar los parametros");
+        return 1;
+    }
     double TIEMPO,TIEMPO_2,TIEMPO_3;
 
     char *res1 = NULL,*res2 = NULL, *res3 = NULL;
 
     TIEMPO = TIEMPO_2 = TIEMPO_3 = omp_get_wtime();
     omp_set_nested(1);
-    //omp_set_dynamic(0);
-    #pragma omp parallel num_threads(2)
+    #pragma omp parallel
     {
             #pragma omp single 
             {
