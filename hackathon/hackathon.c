@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
     TIEMPO = TIEMPO_2 = TIEMPO_3 = omp_get_wtime();
     omp_set_nested(1);
     //omp_set_dynamic(0);
-    #pragma omp parallel num_threads(3)
+    #pragma omp parallel num_threads(2)
     {
             #pragma omp single 
             {
@@ -63,7 +63,7 @@ char* actividad1(char* argv1){
     register FILE *f = fopen("numeros.txt" , "r"); 
     #pragma omp parallel default(none) shared(argv1,res,f)
     {
-        #pragma omp single
+        #pragma omp single nowait
         {
             char str[16];
             int aux;
@@ -85,6 +85,7 @@ char* actividad1(char* argv1){
                         pclose(file);
 
                         aux = atoi(buffer);
+                        //printf("ACT\n");
                     }
               
                     
@@ -94,6 +95,7 @@ char* actividad1(char* argv1){
                 }
             }
             fclose(f);
+            //printf("Cerrando archivo\n");
             
         }        
 
